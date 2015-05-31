@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html ng-app="app">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Test</title>
+  <script type="text/javascript" src="jquery-1.11.0.min.js"></script>
+</head>
+<body>
+  <h4><strong>Demo FFPMEG wrapper.</strong></h4>
+  <div>
+    This demo allows you to upload to server short (up to 1Mb) audio file in one of the following formats:<strong>mp3</strong>|<strong>wav</strong>|<strong>aif</strong>|<strong>ogg</strong>|<strong>3gp</strong>|<strong>amr</strong>|<strong>mid</strong>. The uploaded file will be converted to <strong>aac</strong> format in mp4 container and send back to the client. After successful conversion the result audio file will be played back in the browser.<br />
+    <br />
+    <strong>Note</strong>:the second and all the next requests will be executed with some delay.<br />
+    <br />
+    <input type="file" id="file" />
+    <button id="upload">
+      Upload</button>
+  
+  <script type="text/javascript">
+    $(function ()
+    {
+      $("#upload").on(
+        "click",
+        function ()
+        {
+          var file = $("#file")[0].files[0];
+          var reader = new FileReader();
+
+          reader.onload = function ()
+          {
+            var data = JSON.stringify(this.result.replace(":;", ":audio/ogg;"));
+
+            $.ajax({
+              type: "POST",
+              url: "api/audioConverter",
+              data: data,
+              dataType: "json",
+              contentType: "application/json",
+              success: function (source)
+              {
+                var audio = new Audio();
+                audio.src = source;
+                audio.play();
+              },
+              error: function (e)
+              {
+                if (e.data)
+                {
+                  alert(e.data);
+                }
+                else
+                {
+                  alert(e.responseText);
+                }
+              }
+            });
+          };
+
+          reader.readAsDataURL(file);
+        });
+    });
+  </script>
+  </div>
+</body>
+</html>
